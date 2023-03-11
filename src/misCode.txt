@@ -1,0 +1,21 @@
+public void forwardAlogrthm(){
+        alpha = new ArrayList<>();
+        List<Double> initalList = new ArrayList<>();
+        for(int i = 0; i < inital.length - 1; i++){
+            initalList.add(inital[i] * obsMatrix[i][obs[0]]);
+        }
+        alpha.add(initalList);
+
+        List<Double> tempList = new ArrayList<>();
+        for(int t = 1; t < obs.length; t++){
+            for(int i = 0; i < inital.length; i++){
+                tempList.add(0.0);
+                for(int j = 0; j < inital.length; j++){
+                    tempList.set(t, tempList.get(i) + (alpha.get(t-1).get(j) * transMatrix[j][i]));
+                }
+                tempList.set(t, tempList.get(i) * obsMatrix[i][obs[t]]);
+            }
+            alpha.add(new ArrayList<>(tempList));
+            tempList.clear();
+        }
+    }
