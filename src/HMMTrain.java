@@ -1,7 +1,7 @@
 import java.util.*;
 
 
-public class HMM {
+public class HMMTrain {
     int[] obs;
     double[] inital;
     double[][] transMatrix;
@@ -12,20 +12,50 @@ public class HMM {
     double[][][] diGammas;
     double[] scaling;
     int maxIters;
-    int iters = 0;
-    double oldLogProb = Double.MIN_VALUE;
-
+    int iters;
+    double oldLogProb;
+    double newLogProb;
     int M;
+    int N;
 
-    public HMM(){
-        init();
+    public HMMTrain(int N, int M, int[] obs){
+        this.N = N;
+        this.M = M;
+        this.obs = obs;
+        inital = new double[N];
+        transMatrix = new double[N][N];
+        obsMatrix = new double[N][M];
+        alpha = new double[this.obs.length][N];
+        beta = new double[this.obs.length][N];
+        gammas = new double[this.obs.length][N];
+        diGammas = new double[this.obs.length][N][N];
+        scaling = new double[obs.length];
     }
 
     public void init(){
+        maxIters = 100;
+        iters = 0;
+        oldLogProb = -Double.MAX_VALUE;
+        newLogProb = 0;
 
+        for(int i = 0; i < inital.length; i++){
+            inital[i] = 1 / (N + ((Math.random() * (0.1 - -0.1)) + -0.1));
+        }
+
+        for(int i = 0; i < transMatrix.length; i++){
+            for(int j = 0; j < transMatrix[0].length; j++){
+                transMatrix[i][j] = 1 / (N + ((Math.random() * (0.1 - -0.1)) + -0.1));
+            }
+        }
+
+        for(int i = 0; i < obsMatrix.length; i++){
+            for(int j = 0; j < obsMatrix[0].length; j++){
+                obsMatrix[i][j] = 1 / (M + ((Math.random() * (0.1 - -0.1)) + -0.1));
+            }
+        }
     }
+
     public void forwardAlogrthm(){
-        alpha = new double[obs.length][inital.length];
         scaling[0] = 0;
 
         for(int i = 0; i < inital.length; i++){
@@ -55,8 +85,6 @@ public class HMM {
     }
 
     public void backwardAlogrthm(){
-        beta = new double[obs.length][inital.length];
-
         for(int i = 0; i < inital.length; i++){
             beta[obs.length-1][i] = scaling[obs.length-1];
         }
@@ -75,8 +103,6 @@ public class HMM {
     }
 
     public void gammas(){
-        gammas = new double[obs.length][inital.length];
-        diGammas = new double[obs.length][inital.length][inital.length];
         for(int t = 0; t < obs.length - 1; t++){
             double denom = 0;
             for(int i = 0; i < inital.length; i++){
@@ -139,16 +165,19 @@ public class HMM {
         }
     }
 
-    public boolean stop(){
+    public void calculateScore(){
         double logProb = 0;
         for(int i = 0; i < obs.length; i++){
-            logProb += oldLogProb;
+            logProb += Math.log(scaling[i]);
         }
         logProb *= -1;
+        newLogProb = logProb;
+    }
 
+    public boolean stop(){
         iters++;
-        if(iters < maxIters && logProb > oldLogProb){
-            oldLogProb = logProb;
+        if(iters < maxIters && newLogProb > oldLogProb){
+            oldLogProb = newLogProb;
             return true;
         }
         else {
@@ -170,15 +199,5 @@ public class HMM {
         for(double[] row: obsMatrix){
             System.out.println(Arrays.toString(row));
         }
-    }
-    public static void main(String[] args){
-        HMM hmm = new HMM();
-
-        do{
-            hmm.forwardAlogrthm();
-            hmm.backwardAlogrthm();
-            hmm.gammas();
-            hmm.reEstimation();
-        }while(hmm.stop());
     }
 }
