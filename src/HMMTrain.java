@@ -35,7 +35,7 @@ public class HMMTrain {
     public void init(){
         maxIters = 100;
         iters = 0;
-        oldLogProb = -Double.MAX_VALUE;
+        oldLogProb = -1 * Double.MAX_VALUE;
         newLogProb = 0;
 
         for(int i = 0; i < inital.length; i++){
@@ -58,18 +58,23 @@ public class HMMTrain {
     public void forwardAlogrthm(){
         scaling[0] = 0;
 
-        for(int i = 0; i < inital.length; i++){
+        for(int i = 0; i < N; i++){
             alpha[0][i] = inital[i] * obsMatrix[i][obs[0]];
             scaling[0] += alpha[0][i];
+        }
+
+        scaling[0] = 1/scaling[0];
+        for(int i = 0; i < N; i++){
+            alpha[0][i] *= scaling[0];
         }
 
         for(int t = 1; t < obs.length; t++){
             scaling[t] = 0;
 
-            for(int i = 0; i < inital.length; i++) {
+            for(int i = 0; i < N; i++) {
                 alpha[t][i] = 0;
 
-                for (int j = 0; j < inital.length; j++) {
+                for (int j = 0; j < N; j++) {
                     alpha[t][i] += alpha[t - 1][j] * transMatrix[j][i];
                 }
 
@@ -78,22 +83,22 @@ public class HMMTrain {
             }
 
             scaling[t] = 1/scaling[t];
-            for (int i = 0; i < inital.length; i++){
+            for (int i = 0; i < N; i++){
                 alpha[t][i] *= scaling[t];
             }
         }
     }
 
     public void backwardAlogrthm(){
-        for(int i = 0; i < inital.length; i++){
+        for(int i = 0; i < N; i++){
             beta[obs.length-1][i] = scaling[obs.length-1];
         }
 
         for(int t = obs.length - 2; t >= 0; t--) {
-            for (int i = 0; i < inital.length; i++) {
+            for (int i = 0; i < N; i++) {
                 beta[t][i] = 0;
 
-                for (int j = 0; j < inital.length; j++) {
+                for (int j = 0; j < N; j++) {
                     beta[t][i] += transMatrix[i][j] *  obsMatrix[j][obs[t+1]] * beta[t+1][j];
                 }
 
@@ -105,15 +110,15 @@ public class HMMTrain {
     public void gammas(){
         for(int t = 0; t < obs.length - 1; t++){
             double denom = 0;
-            for(int i = 0; i < inital.length; i++){
-                for(int j = 0; j < inital.length; j++){
+            for(int i = 0; i < N; i++){
+                for(int j = 0; j < N; j++){
                     denom += alpha[t][i] * transMatrix[i][j] * obsMatrix[j][obs[t+1]] * beta[t+1][j];
                 }
             }
 
-            for(int i = 0; i < inital.length; i++){
+            for(int i = 0; i < N; i++){
                 gammas[t][i] = 0;
-                for(int j = 0; j < inital.length; j++){
+                for(int j = 0; j < N; j++){
                     diGammas[t][i][j] = (alpha[t][i] * transMatrix[i][j] * obsMatrix[j][obs[t+1]] * beta[t+1][j]) / denom;
                     gammas[t][i] += diGammas[t][i][j];
                 }
@@ -121,25 +126,25 @@ public class HMMTrain {
         }
 
         double denom = 0;
-        for (int i = 0; i < inital.length; i++){
+        for (int i = 0; i < N; i++){
             denom += alpha[obs.length - 1][i];
         }
-        for(int i = 0; i < inital.length; i++){
+        for(int i = 0; i < N; i++){
             gammas[obs.length - 1][i] = alpha[obs.length - 1][i] / denom;
         }
     }
 
     public void reEstimation(){
-        for(int i = 0; i < inital.length; i++){
+        for(int i = 0; i < N; i++){
             inital[i] = gammas[0][i];
         }
 
-        for(int i = 0; i < inital.length; i++){
+        for(int i = 0; i < N; i++){
             double denom = 0;
             for(int t = 0; t < obs.length - 1; t++){
                 denom += gammas[t][i];
             }
-            for(int j = 0; j < inital.length; j++){
+            for(int j = 0; j < N; j++){
                 double numer = 0;
                 for(int t = 0; t < obs.length - 1; t++){
                     numer += diGammas[t][i][j];
@@ -148,7 +153,7 @@ public class HMMTrain {
             }
         }
 
-        for(int i = 0; i < inital.length; i++){
+        for(int i = 0; i < N; i++){
             double denom = 0;
             for(int t = 0; t < obs.length; t++){
                 denom += gammas[t][i];
@@ -174,14 +179,15 @@ public class HMMTrain {
         newLogProb = logProb;
     }
 
-    public boolean stop(){
-        iters++;
+    public boolean continues(){
+
         if(iters < maxIters && newLogProb > oldLogProb){
             oldLogProb = newLogProb;
+            iters++;
             return true;
         }
         else {
-            printOut();
+            //printOut();
             return false;
         }
     }

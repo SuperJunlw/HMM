@@ -5,7 +5,6 @@ public class HMMTest {
     double[][] obsMatrix;
     double[][] alpha;
     double[] scaling;
-    double newLogProb = 0;
 
     public HMMTest(int[] obs, double[] inital, double[][] transMatrix, double[][] obsMatrix){
         this.obs = obs;
@@ -22,6 +21,11 @@ public class HMMTest {
         for(int i = 0; i < inital.length; i++){
             alpha[0][i] = inital[i] * obsMatrix[i][obs[0]];
             scaling[0] += alpha[0][i];
+        }
+
+        scaling[0] = 1/scaling[0];
+        for(int i = 0; i < inital.length; i++){
+            alpha[0][i] *= scaling[0];
         }
 
         for(int t = 1; t < obs.length; t++){
@@ -45,13 +49,13 @@ public class HMMTest {
         }
     }
 
-    public void calculateScore(){
+    public double calculateScore(){
         double logProb = 0;
         for(int i = 0; i < obs.length; i++){
             logProb += Math.log(scaling[i]);
         }
         logProb *= -1;
-        newLogProb = logProb;
+        return logProb;
     }
 
 }

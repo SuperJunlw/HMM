@@ -8,34 +8,37 @@ public class Driver {
     public static void main(String[] args) throws IOException {
         int trainAmount = 1100;
         int testAmount = 200;
-        List<Integer> testList = new ArrayList<>();
-        int[] obs = FileIO.readFolder(trainAmount, testAmount, testList);
+        int secondAmount = 550;
 
-        int[] zaTestSet = new int[testList.size()];
+        int[] obs = FileIO.readFolder(trainAmount, testAmount); //get the observation sequence
+        int[] zaTestSet = new int[FileIO.testList.size()]; //get 1st test set
         for(int i = 0; i < zaTestSet.length; i++) {
-            zaTestSet[i] = testList.get(i);
+            zaTestSet[i] = FileIO.testList.get(i);
         }
+        int[] zbotTestSet = FileIO.zbotTest(secondAmount); //get 2nd test set
 
-        System.out.print(Arrays.toString(zaTestSet));
-        System.out.print(zaTestSet.length);
-        /*
-        int N = 0;
-        int M = 0;
-        HMMTrain hmmTrain = new HMMTrain(N, M);
+        //System.out.print(Arrays.toString(secondTestSet));
+        //System.out.println(secondTestSet.length);
+        //System.out.println(zaTestSet.length);
+
+        int N = 2;
+        int M = obs.length;
+        HMMTrain hmmTrain = new HMMTrain(N, M, obs);
+
+        hmmTrain.init();
 
         do{
-            hmmTrain.init();
             hmmTrain.forwardAlogrthm();
             hmmTrain.backwardAlogrthm();
             hmmTrain.gammas();
             hmmTrain.reEstimation();
             hmmTrain.calculateScore();
-        }while(hmmTrain.stop());
+        }while(hmmTrain.continues());
 
-        HMMTest hmmTest = new HMMTest();
+        HMMTest hmmTest = new HMMTest(zaTestSet, hmmTrain.inital, hmmTrain.transMatrix, hmmTrain.obsMatrix);
         hmmTest.forwardAlogrthm();
-        hmmTest.calculateScore();
-         */
+        System.out.println(hmmTest.calculateScore());
+
 
     }
 }
