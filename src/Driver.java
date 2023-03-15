@@ -7,26 +7,16 @@ public class Driver {
 
     public static void main(String[] args) throws IOException {
         int trainAmount = 1100;
-        int testAmount = 200;
-        int secondAmount = 550;
+        int testAmount = 205;
 
-        int[] obs = FileIO.readFolder(trainAmount, testAmount); //get the observation sequence
-        int[] zaTestSet = new int[FileIO.testList.size()]; //get 1st test set
-        for(int i = 0; i < zaTestSet.length; i++) {
-            zaTestSet[i] = FileIO.testList.get(i);
-        }
-        int[] zbotTestSet = FileIO.zbotTest(secondAmount); //get 2nd test set
-
-        //System.out.print(Arrays.toString(secondTestSet));
-        //System.out.println(secondTestSet.length);
-        //System.out.println(zaTestSet.length);
+        int[] obs = FileIO.readFolderWithOutNoiseRe(trainAmount, testAmount); //get the observation sequence
+        FileIO.zbotTest(testAmount);
 
         int N = 2;
-        int M = obs.length;
+        int M = FileIO.index;
         HMMTrain hmmTrain = new HMMTrain(N, M, obs);
 
         hmmTrain.init();
-
         do{
             hmmTrain.forwardAlogrthm();
             hmmTrain.backwardAlogrthm();
@@ -34,11 +24,24 @@ public class Driver {
             hmmTrain.reEstimation();
             hmmTrain.calculateScore();
         }while(hmmTrain.continues());
+        hmmTrain.printOut();
 
-        HMMTest hmmTest = new HMMTest(zaTestSet, hmmTrain.inital, hmmTrain.transMatrix, hmmTrain.obsMatrix);
-        hmmTest.forwardAlogrthm();
-        System.out.println(hmmTest.calculateScore());
+        System.out.println("Zeroaccess test set scores: \n");
+        getTestDataScores(FileIO.zATestDataList, hmmTrain);
+        System.out.println("\nZbot test set scores: \n");
+        getTestDataScores(FileIO.zBotTestDataList, hmmTrain);
+    }
 
-
+    public static void getTestDataScores(List<List<Integer>> dataset, HMMTrain model){
+        for(List<Integer> list : dataset){
+            int[] sequence = new int[list.size()];
+            for(int i = 0; i < sequence.length; i++){
+                sequence[i] = list.get(i);
+            }
+            //System.out.println(Arrays.toString(sequence) + "\n");
+            HMMTest test = new HMMTest(sequence, model.inital, model.transMatrix, model.obsMatrix);
+            test.forwardAlogrthm();
+            System.out.println(test.calculateScore());
+        }
     }
 }

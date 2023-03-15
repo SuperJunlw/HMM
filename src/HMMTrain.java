@@ -22,14 +22,14 @@ public class HMMTrain {
         this.N = N;
         this.M = M;
         this.obs = obs;
-        inital = new double[N];
-        transMatrix = new double[N][N];
-        obsMatrix = new double[N][M];
-        alpha = new double[this.obs.length][N];
-        beta = new double[this.obs.length][N];
-        gammas = new double[this.obs.length][N];
-        diGammas = new double[this.obs.length][N][N];
-        scaling = new double[obs.length];
+        inital = new double[this.N];
+        transMatrix = new double[this.N][this.N];
+        obsMatrix = new double[this.N][this.M];
+        alpha = new double[this.obs.length][this.N];
+        beta = new double[this.obs.length][this.N];
+        gammas = new double[this.obs.length][this.N];
+        diGammas = new double[this.obs.length][this.N][this.N];
+        scaling = new double[this.obs.length];
     }
 
     public void init(){
@@ -139,6 +139,7 @@ public class HMMTrain {
             inital[i] = gammas[0][i];
         }
 
+        //re-estimate A
         for(int i = 0; i < N; i++){
             double denom = 0;
             for(int t = 0; t < obs.length - 1; t++){
@@ -153,6 +154,7 @@ public class HMMTrain {
             }
         }
 
+        //re-estimate B
         for(int i = 0; i < N; i++){
             double denom = 0;
             for(int t = 0; t < obs.length; t++){
@@ -193,7 +195,8 @@ public class HMMTrain {
     }
 
     public void printOut(){
-        System.out.print("Initial state distribution\n");
+        System.out.print(("Score: " + newLogProb));
+        System.out.print("\nInitial state distribution\n");
         System.out.print(Arrays.toString(inital));
 
         System.out.print("\nState Transition Matrix\n");
