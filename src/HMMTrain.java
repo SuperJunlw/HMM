@@ -182,7 +182,6 @@ public class HMMTrain {
     }
 
     public boolean continues(){
-
         if(iters < maxIters && newLogProb > oldLogProb){
             oldLogProb = newLogProb;
             iters++;
