@@ -8,6 +8,7 @@ public class Driver {
         int trainAmount = 1100;
         int testAmount = 205;
 
+        /*
         //preprocess data with noise reduction
         int numSymbols = 40;
 
@@ -18,9 +19,11 @@ public class Driver {
         int N = 2;
         int M = numSymbols + 1;
 
+         */
+
 
         //preprocess data without noise reduction
-/*
+
         FileIO.readFolderWithOutNoiseRe();
         int[] obs = FileIO.getZATrainAndTestNoNoise(trainAmount, testAmount); //get the observation sequence
         FileIO.zbotTest(testAmount);
@@ -28,7 +31,6 @@ public class Driver {
         int N = 2;
         int M = FileIO.index;
 
- */
         HMMTrain hmmTrain = new HMMTrain(N, M, obs);
         hmmTrain.init();
         do{
@@ -41,18 +43,20 @@ public class Driver {
         hmmTrain.printOut();
 
         //without noise reduction
-/*
+
         System.out.println("Zeroaccess test set scores: \n");
         getTestDataScores(FileIO.zATestDataList, hmmTrain);
         System.out.println("\nZbot test set scores: \n");
         getTestDataScores(FileIO.zBotTestDataList, hmmTrain);
 
- */
+ /*
         //with noise reduction
         System.out.println("Zeroaccess test set scores: \n");
         getTestDataScores(FileIO.zATestDataListNoise, hmmTrain);
         System.out.println("\nZbot test set scores: \n");
         getTestDataScores(FileIO.zBotTestDataListNoise, hmmTrain);
+
+  */
     }
 
     public static void getTestDataScores(List<List<Integer>> dataset, HMMTrain model){

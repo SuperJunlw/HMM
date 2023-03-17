@@ -19,14 +19,14 @@ public class FileIO {
     //zbot and zeroaccess has the same unique opcodes
     public static void readFolderWithOutNoiseRe()throws IOException{
         File folder = new File("zeroaccess");
-        File fileList[] = folder.listFiles();
+        File[] fileList = folder.listFiles();
         Scanner sc = null;
         assert fileList != null;
         for (File file : fileList) {
             sc = new Scanner(file);
             String opCode;
             while (sc.hasNextLine()) {
-                opCode = sc.nextLine();
+                opCode = sc.nextLine().trim();
                 if (!hb.containsKey(opCode)) {
                     hb.put(opCode, index);
                     index++;
@@ -40,7 +40,7 @@ public class FileIO {
         int count = 0;
 
         File folder = new File("zeroaccess");
-        File fileList[] = folder.listFiles();
+        File[] fileList = folder.listFiles();
         Scanner sc = null;
         assert fileList != null;
         for (File file : fileList) {
@@ -48,14 +48,14 @@ public class FileIO {
             String opCode;
             if (count < trainAmount) {
                 while (sc.hasNextLine()) {
-                    opCode = sc.nextLine();
+                    opCode = sc.nextLine().trim();
                     trainList.add(hb.get(opCode));
                 }
             }
             else if (count >= trainAmount && count < trainAmount + testAmount) {
                 List<Integer> list = new ArrayList<>();
                 while (sc.hasNextLine()) {
-                    opCode = sc.nextLine();
+                    opCode = sc.nextLine().trim();
                     list.add(hb.get(opCode));
                 }
                 zATestDataList.add(list);
@@ -74,7 +74,7 @@ public class FileIO {
         int count = 0;
 
         File folder = new File("zbot");
-        File fileList[] = folder.listFiles();
+        File[] fileList = folder.listFiles();
         Scanner sc = null;
 
         assert fileList != null;
@@ -84,7 +84,7 @@ public class FileIO {
             List<Integer> list = new ArrayList<>();
             if(count < testAmount) {
                 while (sc.hasNextLine()) {
-                    opCode = sc.nextLine();
+                    opCode = sc.nextLine().trim();
                     if(hb.containsKey(opCode))
                         list.add(hb.get(opCode));
                 }
@@ -105,7 +105,7 @@ public class FileIO {
         int count = 0;
 
         File folder = new File("zeroaccess");
-        File fileList[] = folder.listFiles();
+        File[] fileList = folder.listFiles();
         Scanner sc = null;
 
         for (File file : fileList) {
@@ -113,7 +113,7 @@ public class FileIO {
             String opCode;
 
             while (sc.hasNextLine()) {
-                opCode = sc.nextLine();
+                opCode = sc.nextLine().trim();
                 if (countHM.containsKey(opCode)) {
                     countHM.put(opCode, countHM.get(opCode) + 1);
                 } else {
@@ -149,7 +149,7 @@ public class FileIO {
         int count = 0;
 
         File folder = new File("zeroaccess");
-        File fileList[] = folder.listFiles();
+        File[] fileList = folder.listFiles();
         Scanner sc = null;
         assert fileList != null;
 
@@ -158,7 +158,7 @@ public class FileIO {
             String opCode;
             if (count < trainAmount) {
                 while (sc.hasNextLine()) {
-                    opCode = sc.nextLine();
+                    opCode = sc.nextLine().trim();
                     if (indexHM.containsKey(opCode)) {
                         trainList.add(indexHM.get(opCode));
                     } else {
@@ -169,12 +169,8 @@ public class FileIO {
             else if (count >= trainAmount && count < trainAmount + testAmount) {
                 List<Integer> list = new ArrayList<>();
                 while (sc.hasNextLine()) {
-                    opCode = sc.nextLine();
-                    if (indexHM.containsKey(opCode)) {
-                        list.add(indexHM.get(opCode));
-                    } else {
-                        list.add(M);
-                    }
+                    opCode = sc.nextLine().trim();
+                    list.add(indexHM.getOrDefault(opCode, M));
                 }
                 zATestDataListNoise.add(list);
             }
@@ -191,7 +187,7 @@ public class FileIO {
         int count = 0;
 
         File folder = new File("zbot");
-        File fileList[] = folder.listFiles();
+        File[] fileList = folder.listFiles();
         Scanner sc = null;
 
         assert fileList != null;
@@ -201,12 +197,8 @@ public class FileIO {
             List<Integer> list = new ArrayList<>();
             if(count < testAmount) {
                 while (sc.hasNextLine()) {
-                    opCode = sc.nextLine();
-                    if (indexHM.containsKey(opCode)) {
-                        list.add(indexHM.get(opCode));
-                    } else {
-                        list.add(M);
-                    }
+                    opCode = sc.nextLine().trim();
+                    list.add(indexHM.getOrDefault(opCode, M));
                 }
                 zBotTestDataListNoise.add(list);
             }
