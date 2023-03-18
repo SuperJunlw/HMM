@@ -134,7 +134,7 @@ public class FileIO {
         //create a map with the most frequent opcode
         //HashMap<String, Integer> temp = new LinkedHashMap<String, Integer>();
         for (Map.Entry<String, Integer> aa : list) {
-            if(count < M) {
+            if(count < M-1) {
                 //temp.put(aa.getKey(), aa.getValue());
                 indexHM.put(aa.getKey(), count);
             }
@@ -162,7 +162,7 @@ public class FileIO {
                     if (indexHM.containsKey(opCode)) {
                         trainList.add(indexHM.get(opCode));
                     } else {
-                        trainList.add(M);
+                        trainList.add(M-1);
                     }
                 }
             }
@@ -170,7 +170,7 @@ public class FileIO {
                 List<Integer> list = new ArrayList<>();
                 while (sc.hasNextLine()) {
                     opCode = sc.nextLine().trim();
-                    list.add(indexHM.getOrDefault(opCode, M));
+                    list.add(indexHM.getOrDefault(opCode, M-1));
                 }
                 zATestDataListNoise.add(list);
             }
@@ -198,7 +198,7 @@ public class FileIO {
             if(count < testAmount) {
                 while (sc.hasNextLine()) {
                     opCode = sc.nextLine().trim();
-                    list.add(indexHM.getOrDefault(opCode, M));
+                    list.add(indexHM.getOrDefault(opCode, M-1));
                 }
                 zBotTestDataListNoise.add(list);
             }
