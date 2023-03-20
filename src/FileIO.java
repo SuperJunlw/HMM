@@ -121,6 +121,25 @@ public class FileIO {
                 }
             }
         }
+        /*
+        File folder2 = new File("zbot");
+        File[] fileList2 = folder2.listFiles();
+        Scanner sc2 = null;
+
+        for (File file : fileList2) {
+            sc2 = new Scanner(file);
+            String opCode;
+
+            while (sc2.hasNextLine()) {
+                opCode = sc2.nextLine().trim();
+                if (countHM.containsKey(opCode)) {
+                    countHM.put(opCode, countHM.get(opCode) + 1);
+                } else {
+                    countHM.put(opCode, 1);
+                }
+            }
+        }
+         */
 
         //sort map based on the values
         List<Map.Entry<String, Integer> > list = new LinkedList<Map.Entry<String, Integer> >(countHM.entrySet());
@@ -186,7 +205,7 @@ public class FileIO {
     public static void zbotTestWithNoise(int M, int testAmount) throws IOException{
         int count = 0;
 
-        File folder = new File("zbot");
+        File folder = new File("winwebsec");
         File[] fileList = folder.listFiles();
         Scanner sc = null;
 

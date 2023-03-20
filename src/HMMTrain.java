@@ -14,7 +14,7 @@ public class HMMTrain {
     int maxIters;
     int iters;
     double oldLogProb;
-    double newLogProb;
+    //double newLogProb;
     int M;
     int N;
 
@@ -35,8 +35,8 @@ public class HMMTrain {
     public void init(){
         maxIters = 100;
         iters = 0;
-        oldLogProb = -1 * Double.MAX_VALUE;
-        newLogProb = 0;
+        oldLogProb = Double.NEGATIVE_INFINITY;
+        //newLogProb = 0;
 
         for(int i = 0; i < inital.length; i++){
             inital[i] = 1 / (N + ((Math.random() * (0.1 - -0.1)) + -0.1));
@@ -56,6 +56,7 @@ public class HMMTrain {
     }
 
     public void forwardAlogrthm(){
+        //alpha = new double[this.obs.length][this.N];
         scaling[0] = 0;
 
         for(int i = 0; i < N; i++){
@@ -75,7 +76,7 @@ public class HMMTrain {
                 alpha[t][i] = 0;
 
                 for (int j = 0; j < N; j++) {
-                    alpha[t][i] += alpha[t - 1][j] * transMatrix[j][i];
+                    alpha[t][i] += (alpha[t - 1][j] * transMatrix[j][i]);
                 }
 
                 alpha[t][i] *= obsMatrix[i][obs[t]];
@@ -90,6 +91,7 @@ public class HMMTrain {
     }
 
     public void backwardAlogrthm(){
+        //beta = new double[this.obs.length][this.N];
         for(int i = 0; i < N; i++){
             beta[obs.length-1][i] = scaling[obs.length-1];
         }
@@ -99,7 +101,7 @@ public class HMMTrain {
                 beta[t][i] = 0;
 
                 for (int j = 0; j < N; j++) {
-                    beta[t][i] += transMatrix[i][j] *  obsMatrix[j][obs[t+1]] * beta[t+1][j];
+                    beta[t][i] += (transMatrix[i][j] *  obsMatrix[j][obs[t+1]] * beta[t+1][j]);
                 }
 
                 beta[t][i] *= scaling[t];
@@ -108,11 +110,13 @@ public class HMMTrain {
     }
 
     public void gammas(){
+        //gammas = new double[this.obs.length][this.N];
+        //diGammas = new double[this.obs.length][this.N][this.N];
         for(int t = 0; t < obs.length - 1; t++){
             double denom = 0;
             for(int i = 0; i < N; i++){
                 for(int j = 0; j < N; j++){
-                    denom += alpha[t][i] * transMatrix[i][j] * obsMatrix[j][obs[t+1]] * beta[t+1][j];
+                    denom += (alpha[t][i] * transMatrix[i][j] * obsMatrix[j][obs[t+1]] * beta[t+1][j]);
                 }
             }
 
@@ -171,7 +175,7 @@ public class HMMTrain {
             }
         }
     }
-
+/*
     public void calculateScore(){
         double logProb = 0;
         for(int i = 0; i < obs.length; i++){
@@ -181,20 +185,27 @@ public class HMMTrain {
         newLogProb = logProb;
     }
 
+
+ */
     public boolean continues(){
-        if(iters < maxIters && newLogProb > oldLogProb){
-            oldLogProb = newLogProb;
-            iters++;
+        double logProb = 0;
+        for(int i = 0; i < obs.length; i++){
+            logProb += Math.log(scaling[i]);
+        }
+        logProb = -1 * logProb;
+
+        iters++;
+        if(iters < maxIters && logProb > oldLogProb){
+            oldLogProb = logProb;
             return true;
         }
         else {
-            //printOut();
             return false;
         }
     }
 
     public void printOut(){
-        System.out.print(("Score: " + newLogProb));
+        System.out.print(("Score: " + oldLogProb));
         System.out.print("\nInitial state distribution\n");
         System.out.print(Arrays.toString(inital));
 
