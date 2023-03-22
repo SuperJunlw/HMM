@@ -104,7 +104,7 @@ public class FileIO {
         HashMap<String, Integer> countHM = new HashMap<>();
         int count = 0;
 
-        File folder = new File("zeroaccess");
+        File folder = new File("winwebsec");
         File[] fileList = folder.listFiles();
         Scanner sc = null;
 
@@ -166,8 +166,9 @@ public class FileIO {
     public static int[] readFolderWithNoiseRe(int M, int trainAmount, int testAmount)throws IOException{
         List<Integer> trainList = new ArrayList<>();
         int count = 0;
+        int testCount = 0;
 
-        File folder = new File("zeroaccess");
+        File folder = new File("winwebsec");
         File[] fileList = folder.listFiles();
         Scanner sc = null;
         assert fileList != null;
@@ -184,16 +185,24 @@ public class FileIO {
                         trainList.add(M-1);
                     }
                 }
+                count++;
             }
-            else if (count >= trainAmount && count < trainAmount + testAmount) {
+            else if (count >= trainAmount && testCount < testAmount) {
                 List<Integer> list = new ArrayList<>();
-                while (sc.hasNextLine()) {
+                int i = 0;
+                while (sc.hasNextLine() && i < 2000) {
                     opCode = sc.nextLine().trim();
                     list.add(indexHM.getOrDefault(opCode, M-1));
+                    i++;
+                    if(i == 2000) {
+                        zATestDataListNoise.add(list);
+                        testCount++;
+                        break;
+                    }
                 }
-                zATestDataListNoise.add(list);
             }
-            count++;
+            else
+                break;
         }
         int[] obsTrain = new int[trainList.size()];
         for (int i = 0; i < obsTrain.length; i++) {
@@ -205,7 +214,7 @@ public class FileIO {
     public static void zbotTestWithNoise(int M, int testAmount) throws IOException{
         int count = 0;
 
-        File folder = new File("winwebsec");
+        File folder = new File("zeroaccess");
         File[] fileList = folder.listFiles();
         Scanner sc = null;
 
@@ -214,16 +223,23 @@ public class FileIO {
             sc = new Scanner(file);
             String opCode;
             List<Integer> list = new ArrayList<>();
+
             if(count < testAmount) {
-                while (sc.hasNextLine()) {
+                int i = 0;
+                while (sc.hasNextLine() &&  i < 2000) {
                     opCode = sc.nextLine().trim();
                     list.add(indexHM.getOrDefault(opCode, M-1));
+                    i++;
+
+                    if(i == 2000) {
+                        zBotTestDataListNoise.add(list);
+                        count++;
+                        break;
+                    }
                 }
-                zBotTestDataListNoise.add(list);
             }
             else
                 break;
-            count++;
         }
     }
 }

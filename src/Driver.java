@@ -6,12 +6,10 @@ import java.util.*;
 public class Driver {
 
     public static void main(String[] args) throws Exception {
-        //WekaPackageManager.loadPackages(false);
 
-        //HMM hmm = new HMM();
-        int trainAmount = 1100;
-        int testAmount = 205;
-        int M = 35;
+        int trainAmount = 3300;
+        int testAmount = 200;
+        int M = 30;
         int N = 2;
 
 
