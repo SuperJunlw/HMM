@@ -1,6 +1,6 @@
 import java.util.*;
 
-
+//This class implement HMM to train a model based on an observation sequence
 public class HMMTrain {
     int[] obs;
     double[] inital;
@@ -32,11 +32,11 @@ public class HMMTrain {
         scaling = new double[this.obs.length];
     }
 
+    //initialize the model with random number
     public void init(){
         maxIters = 100;
         iters = 0;
         oldLogProb = Double.NEGATIVE_INFINITY;
-        //newLogProb = 0;
 
         for(int i = 0; i < inital.length; i++){
             inital[i] = 1 / (N + ((Math.random() * (0.1 - -0.1)) + -0.1));
@@ -55,8 +55,8 @@ public class HMMTrain {
         }
     }
 
+    //implement forward algorithm
     public void forwardAlogrthm(){
-        //alpha = new double[this.obs.length][this.N];
         scaling[0] = 0;
 
         for(int i = 0; i < N; i++){
@@ -90,8 +90,8 @@ public class HMMTrain {
         }
     }
 
+    //implement the backward algorithm
     public void backwardAlogrthm(){
-        //beta = new double[this.obs.length][this.N];
         for(int i = 0; i < N; i++){
             beta[obs.length-1][i] = scaling[obs.length-1];
         }
@@ -109,9 +109,8 @@ public class HMMTrain {
         }
     }
 
+    //calculate the gammas
     public void gammas(){
-        //gammas = new double[this.obs.length][this.N];
-        //diGammas = new double[this.obs.length][this.N][this.N];
         for(int t = 0; t < obs.length - 1; t++){
             double denom = 0;
             for(int i = 0; i < N; i++){
@@ -138,6 +137,7 @@ public class HMMTrain {
         }
     }
 
+    //re-estimation the model(A,B,pi)
     public void reEstimation(){
         for(int i = 0; i < N; i++){
             inital[i] = gammas[0][i];
@@ -175,18 +175,8 @@ public class HMMTrain {
             }
         }
     }
-/*
-    public void calculateScore(){
-        double logProb = 0;
-        for(int i = 0; i < obs.length; i++){
-            logProb += Math.log(scaling[i]);
-        }
-        logProb *= -1;
-        newLogProb = logProb;
-    }
 
-
- */
+    //calculate the new log probability of the model, and check if we should continue to train the model
     public boolean continues(){
         double logProb = 0;
         for(int i = 0; i < obs.length; i++){
@@ -204,6 +194,7 @@ public class HMMTrain {
         }
     }
 
+    //print the model
     public void printOut(){
         System.out.print(("Score: " + oldLogProb));
         System.out.print("\nInitial state distribution\n");

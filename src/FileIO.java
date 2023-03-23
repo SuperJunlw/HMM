@@ -1,22 +1,30 @@
 import java.io.*;
 import java.util.*;
 
+//This class read the malware folder, convert opcodes to index and split data to training and testing sets
 public class FileIO {
     // no noise reduce data structures
     static HashMap<String, Integer> hb = new HashMap<>();
-    static List<List<Integer>> zATestDataList = new ArrayList<>();
-    static List<List<Integer>> zBotTestDataList = new ArrayList<>();
+    static List<List<Integer>> firstTestDataList = new ArrayList<>();
+    static List<List<Integer>> secondTestDataList = new ArrayList<>();
     static int index = 0;
 
     //noise reduce data structures
     static HashMap<String, Integer> indexHM = new HashMap<String, Integer>();
-    static List<List<Integer>> zATestDataListNoise = new ArrayList<>();
-    static List<List<Integer>> zBotTestDataListNoise = new ArrayList<>();
+    static List<List<Integer>> firstTestDataListNoise = new ArrayList<>();
+    static List<List<Integer>> secondTestDataListNoise = new ArrayList<>();
 
     //zbot folder has 2136 files
     //winwebsec folder has 4360 files
     //zeroaccess folder has 1305 files
     //zbot and zeroaccess has the same unique opcodes
+
+
+    //**********************************************************************************************************
+    //preprocessing the dataset without noise reduction
+    //**********************************************************************************************************
+
+    //read a malware folder and assign an index to all the unique opcode
     public static void readFolderWithOutNoiseRe()throws IOException{
         File folder = new File("winwebsec");
         File[] fileList = folder.listFiles();
@@ -33,9 +41,11 @@ public class FileIO {
                 }
             }
         }
-        //System.out.println(FileIO.index);
     }
-    public static int[] getZATrainAndTestNoNoise(int trainAmount, int testAmount) throws IOException {
+
+    //read the winwebsec folder, get a observation sequence with index for training by combined certain amount of files
+    //then get testing sequences from the same class
+    public static int[] getTrainAndTestNoNoise(int trainAmount, int testAmount, int testLength) throws IOException {
         List<Integer> trainList = new ArrayList<>();
         int count = 0;
         int testCount = 0;
@@ -47,6 +57,7 @@ public class FileIO {
         for (File file : fileList) {
             sc = new Scanner(file);
             String opCode;
+            //get the training sequence
             if (count < trainAmount) {
                 while (sc.hasNextLine()) {
                     opCode = sc.nextLine().trim();
@@ -54,6 +65,7 @@ public class FileIO {
                 }
                 count++;
             }
+            //get the testing sequence
             else if (count >= trainAmount && testCount < testAmount) {
                 List<Integer> list = new ArrayList<>();
                 int i = 0;
@@ -61,8 +73,8 @@ public class FileIO {
                     opCode = sc.nextLine().trim();
                     list.add(hb.get(opCode));
                     i++;
-                    if(i == 500) {
-                        zATestDataList.add(list);
+                    if(i == testLength) {
+                        firstTestDataList.add(list);
                         testCount++;
                         break;
                     }
@@ -71,7 +83,7 @@ public class FileIO {
             else
                 break;
         }
-        //System.out.println(index);
+
         int[] obsTrain = new int[trainList.size()];
         for (int i = 0; i < obsTrain.length; i++) {
             obsTrain[i] = trainList.get(i);
@@ -79,7 +91,8 @@ public class FileIO {
         return obsTrain;
     }
 
-    public static void zbotTest(int testAmount) throws IOException {
+    //read another malware folder and get the testing sequences
+    public static void secondTestNoNoiseRe(int testAmount, int testLength) throws IOException {
         int count = 0;
 
         File folder = new File("zeroaccess");
@@ -99,8 +112,8 @@ public class FileIO {
                         list.add(hb.get(opCode));
                         i++;
                     }
-                    if(i == 500) {
-                        zBotTestDataList.add(list);
+                    if(i == testLength) {
+                        secondTestDataList.add(list);
                         count++;
                         break;
                     }
@@ -112,7 +125,7 @@ public class FileIO {
     }
 
     //-----------------------------------------------------------------------------------------------------------
-    //for noisy reduction
+    //for noise reduction
     //-----------------------------------------------------------------------------------------------------------
 
     //count the frequency of each opcode in the folder
@@ -148,11 +161,10 @@ public class FileIO {
                 return (o2.getValue()).compareTo(o1.getValue());
             }
         });
+
         //create a map with the most frequent opcode, store the most frequent opcodes to the map
-        //HashMap<String, Integer> temp = new LinkedHashMap<String, Integer>();
         for (Map.Entry<String, Integer> aa : list) {
             if(count < M-1) {
-                //temp.put(aa.getKey(), aa.getValue());
                 indexHM.put(aa.getKey(), count);
             }
             else
@@ -162,7 +174,7 @@ public class FileIO {
     }
 
     //read the files from a folder, sprites the files to training set and test set
-    public static int[] readFolderWithNoiseRe(int M, int trainAmount, int testAmount)throws IOException{
+    public static int[] readFolderWithNoiseRe(int M, int trainAmount, int testAmount, int testLength)throws IOException{
         List<Integer> trainList = new ArrayList<>();
         int count = 0;
         int testCount = 0;
@@ -175,6 +187,7 @@ public class FileIO {
         for (File file : fileList) {
             sc = new Scanner(file);
             String opCode;
+            //get the training sequence
             if (count < trainAmount) {
                 while (sc.hasNextLine()) {
                     opCode = sc.nextLine().trim();
@@ -186,6 +199,7 @@ public class FileIO {
                 }
                 count++;
             }
+            //get the testing sequences
             else if (count >= trainAmount && testCount < testAmount) {
                 List<Integer> list = new ArrayList<>();
                 int i = 0;
@@ -193,8 +207,8 @@ public class FileIO {
                     opCode = sc.nextLine().trim();
                     list.add(indexHM.getOrDefault(opCode, M-1));
                     i++;
-                    if(i == 500) {
-                        zATestDataListNoise.add(list);
+                    if(i == testLength) {
+                        firstTestDataListNoise.add(list);
                         testCount++;
                         break;
                     }
@@ -210,8 +224,8 @@ public class FileIO {
         return obsTrain;
     }
 
-    //read the files of another folder, use some of the files for the second test set
-    public static void zbotTestWithNoise(int M, int testAmount) throws IOException{
+    //read the files of another folder, and get testing sequences
+    public static void secondTestWithNoise(int M, int testAmount, int testLength) throws IOException{
         int count = 0;
 
         File folder = new File("zeroaccess");
@@ -232,8 +246,8 @@ public class FileIO {
                     list.add(indexHM.getOrDefault(opCode, M-1));
                     i++;
 
-                    if(i == 500) {
-                        zBotTestDataListNoise.add(list);
+                    if(i == testLength) {
+                        secondTestDataListNoise.add(list);
                         count++;
                         break;
                     }

@@ -1,3 +1,4 @@
+//This class use a given model to calculate the score of a testing sequence
 public class HMMTest {
     int[] obs;
     double[] inital;
@@ -15,6 +16,7 @@ public class HMMTest {
         this.scaling = new double[this.obs.length];
     }
 
+    //implement the forward algorithm
     public void forwardAlogrthm(){
         scaling[0] = 0;
 
@@ -49,6 +51,7 @@ public class HMMTest {
         }
     }
 
+    //calculate the score
     public double calculateScore(){
         double logProb = 0;
         for(int i = 0; i < obs.length; i++){
