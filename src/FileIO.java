@@ -18,7 +18,7 @@ public class FileIO {
     //zeroaccess folder has 1305 files
     //zbot and zeroaccess has the same unique opcodes
     public static void readFolderWithOutNoiseRe()throws IOException{
-        File folder = new File("zeroaccess");
+        File folder = new File("winwebsec");
         File[] fileList = folder.listFiles();
         Scanner sc = null;
         assert fileList != null;
@@ -38,8 +38,9 @@ public class FileIO {
     public static int[] getZATrainAndTestNoNoise(int trainAmount, int testAmount) throws IOException {
         List<Integer> trainList = new ArrayList<>();
         int count = 0;
+        int testCount = 0;
 
-        File folder = new File("zeroaccess");
+        File folder = new File("winwebsec");
         File[] fileList = folder.listFiles();
         Scanner sc = null;
         assert fileList != null;
@@ -51,16 +52,24 @@ public class FileIO {
                     opCode = sc.nextLine().trim();
                     trainList.add(hb.get(opCode));
                 }
+                count++;
             }
-            else if (count >= trainAmount && count < trainAmount + testAmount) {
+            else if (count >= trainAmount && testCount < testAmount) {
                 List<Integer> list = new ArrayList<>();
+                int i = 0;
                 while (sc.hasNextLine()) {
                     opCode = sc.nextLine().trim();
                     list.add(hb.get(opCode));
+                    i++;
+                    if(i == 500) {
+                        zATestDataList.add(list);
+                        testCount++;
+                        break;
+                    }
                 }
-                zATestDataList.add(list);
             }
-            count++;
+            else
+                break;
         }
         //System.out.println(index);
         int[] obsTrain = new int[trainList.size()];
@@ -73,7 +82,7 @@ public class FileIO {
     public static void zbotTest(int testAmount) throws IOException {
         int count = 0;
 
-        File folder = new File("zbot");
+        File folder = new File("zeroaccess");
         File[] fileList = folder.listFiles();
         Scanner sc = null;
 
@@ -83,16 +92,22 @@ public class FileIO {
             String opCode;
             List<Integer> list = new ArrayList<>();
             if(count < testAmount) {
+                int i = 0;
                 while (sc.hasNextLine()) {
                     opCode = sc.nextLine().trim();
-                    if(hb.containsKey(opCode))
+                    if(hb.containsKey(opCode)) {
                         list.add(hb.get(opCode));
+                        i++;
+                    }
+                    if(i == 500) {
+                        zBotTestDataList.add(list);
+                        count++;
+                        break;
+                    }
                 }
-                zBotTestDataList.add(list);
             }
             else
                 break;
-            count++;
         }
     }
 
@@ -100,6 +115,7 @@ public class FileIO {
     //for noisy reduction
     //-----------------------------------------------------------------------------------------------------------
 
+    //count the frequency of each opcode in the folder
     public static void countSymbolFre(int M) throws IOException {
         HashMap<String, Integer> countHM = new HashMap<>();
         int count = 0;
@@ -108,6 +124,7 @@ public class FileIO {
         File[] fileList = folder.listFiles();
         Scanner sc = null;
 
+        //count the frequency of each opcode
         for (File file : fileList) {
             sc = new Scanner(file);
             String opCode;
@@ -121,25 +138,6 @@ public class FileIO {
                 }
             }
         }
-        /*
-        File folder2 = new File("zbot");
-        File[] fileList2 = folder2.listFiles();
-        Scanner sc2 = null;
-
-        for (File file : fileList2) {
-            sc2 = new Scanner(file);
-            String opCode;
-
-            while (sc2.hasNextLine()) {
-                opCode = sc2.nextLine().trim();
-                if (countHM.containsKey(opCode)) {
-                    countHM.put(opCode, countHM.get(opCode) + 1);
-                } else {
-                    countHM.put(opCode, 1);
-                }
-            }
-        }
-         */
 
         //sort map based on the values
         List<Map.Entry<String, Integer> > list = new LinkedList<Map.Entry<String, Integer> >(countHM.entrySet());
@@ -150,7 +148,7 @@ public class FileIO {
                 return (o2.getValue()).compareTo(o1.getValue());
             }
         });
-        //create a map with the most frequent opcode
+        //create a map with the most frequent opcode, store the most frequent opcodes to the map
         //HashMap<String, Integer> temp = new LinkedHashMap<String, Integer>();
         for (Map.Entry<String, Integer> aa : list) {
             if(count < M-1) {
@@ -163,6 +161,7 @@ public class FileIO {
         }
     }
 
+    //read the files from a folder, sprites the files to training set and test set
     public static int[] readFolderWithNoiseRe(int M, int trainAmount, int testAmount)throws IOException{
         List<Integer> trainList = new ArrayList<>();
         int count = 0;
@@ -190,11 +189,11 @@ public class FileIO {
             else if (count >= trainAmount && testCount < testAmount) {
                 List<Integer> list = new ArrayList<>();
                 int i = 0;
-                while (sc.hasNextLine() && i < 2000) {
+                while (sc.hasNextLine()) {
                     opCode = sc.nextLine().trim();
                     list.add(indexHM.getOrDefault(opCode, M-1));
                     i++;
-                    if(i == 2000) {
+                    if(i == 500) {
                         zATestDataListNoise.add(list);
                         testCount++;
                         break;
@@ -211,6 +210,7 @@ public class FileIO {
         return obsTrain;
     }
 
+    //read the files of another folder, use some of the files for the second test set
     public static void zbotTestWithNoise(int M, int testAmount) throws IOException{
         int count = 0;
 
@@ -226,12 +226,13 @@ public class FileIO {
 
             if(count < testAmount) {
                 int i = 0;
-                while (sc.hasNextLine() &&  i < 2000) {
+
+                while (sc.hasNextLine()) {
                     opCode = sc.nextLine().trim();
                     list.add(indexHM.getOrDefault(opCode, M-1));
                     i++;
 
-                    if(i == 2000) {
+                    if(i == 500) {
                         zBotTestDataListNoise.add(list);
                         count++;
                         break;
