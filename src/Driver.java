@@ -56,10 +56,8 @@ public class Driver {
         int[] obs = FileIO.readFolderWithNoiseRe(numSymbols, trainAmount, testAmount, testLength);
         FileIO.secondTestWithNoise(numSymbols, testAmount, testLength);
 
-        int M = numSymbols;
-
         //train the model
-        HMMTrain hmmTrain = new HMMTrain(N, M, obs);
+        HMMTrain hmmTrain = new HMMTrain(N, numSymbols, obs);
         hmmTrain.init();
         do{
             hmmTrain.forwardAlogrthm();
